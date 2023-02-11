@@ -8,17 +8,16 @@ from pathlib import Path
 from tinydb import table, TinyDB, where
 
 BASE_DIR = Path(__file__).resolve().parent
-formatter = logging.basicConfig(
-                filename=BASE_DIR / 'user.log', 
-                level=logging.INFO, 
-                format='%(asctime)s::%(levelname)s::%(message)s', 
-                datefmt='%Y-%m-%d::%H:%M:%S')
+logging.basicConfig(filename=BASE_DIR / 'user.log',
+                    level=logging.INFO,
+                    format='%(asctime)s::%(levelname)s::%(message)s',
+                    datefmt='%Y-%m-%d::%H:%M:%S')
+
 
 class User():
-
     DB = TinyDB(Path(__file__).resolve().parent / 'db.json', indent=2)
-    
-    def __init__(self, first_name: str, last_name: str, phone_number: str="", address: str="") -> None:
+
+    def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "") -> None:
         self.first_name = first_name
         self.last_name = last_name
         self.phone_number = phone_number
@@ -106,7 +105,8 @@ def get_all_users() -> list[User]:
     """
     return [User(**user) for user in User.DB.all()]
 
-def generate_fake_users(number:int = 1, save_user:bool = False) -> list[User]:
+
+def generate_fake_users(number: int = 1, save_user: bool = False) -> list[User]:
     """
     It generates fake users
     
@@ -120,9 +120,9 @@ def generate_fake_users(number:int = 1, save_user:bool = False) -> list[User]:
     users = []
     for _ in range(10):
         user = User(
-            first_name=fake.first_name(), 
-            last_name=fake.last_name(), 
-            phone_number=fake.phone_number(), 
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            phone_number=fake.phone_number(),
             address=fake.address())
         if save_user:
             user.save(validate_data=True)
@@ -136,6 +136,7 @@ def main():
     for user in generate_fake_users(number=10, save_user=True):
         print("-" * 10)
         print(user)
-    
+
+
 if __name__ == "__main__":
     main()
