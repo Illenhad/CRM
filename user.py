@@ -4,18 +4,18 @@ import logging
 import re
 import string
 
-from pathlib import Path
 from tinydb import table, TinyDB, where
 
-BASE_DIR = Path(__file__).resolve().parent
-logging.basicConfig(filename=BASE_DIR / 'user.log',
+from settings import Settings
+
+logging.basicConfig(filename=Settings.LOG_PATH,
                     level=logging.INFO,
                     format='%(asctime)s::%(levelname)s::%(message)s',
                     datefmt='%Y-%m-%d::%H:%M:%S')
 
 
-class User():
-    DB = TinyDB(Path(__file__).resolve().parent / 'db.json', indent=2)
+class User:
+    DB = TinyDB(Settings.DB_PATH, indent=2)
 
     def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "") -> None:
         self.first_name = first_name
@@ -139,4 +139,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    print(Settings.PROJECT_PATH)
+    print(Settings.PROJECT_DIR)
+    print(Settings.DB_PATH)
+    print(Settings.LOG_PATH)
+    # main()
