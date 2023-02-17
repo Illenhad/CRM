@@ -1,33 +1,44 @@
 """Module to generate random users"""
+from collections.abc import Mapping
+from pathlib import Path
+
 import faker
-import logging
 import re
 import string
 
-from tinydb import table, TinyDB, where
+from tinydb import table, where
 
+from core import Core, PhoneValueError, NameValueError
 from settings import Settings
 
-logging.basicConfig(filename=Settings.LOG_PATH,
-                    level=logging.INFO,
-                    format='%(asctime)s::%(levelname)s::%(message)s',
-                    datefmt='%Y-%m-%d::%H:%M:%S')
 
+class User(Core):
 
-class User:
-    DB = TinyDB(Settings.DB_PATH, indent=2)
+    def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "", db_path: Path = Settings.DB_PATH) -> None:
+        super().__init__(db_path=db_path)
 
-    def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "") -> None:
         self.first_name = first_name
         self.last_name = last_name
         self.phone_number = phone_number
         self.address = address
 
+        self.logger.info(self.__repr__())
+
     def __repr__(self) -> str:
-        return f"User({self.first_name}, {self.last_name}, {self.phone_number}, {self.address})"
+        return f"User(first_name={self.first_name}, last_name={self.last_name}, phone_number={self.phone_number}, " \
+               f"address={self.address.replace('n', '')})"
 
     def __str__(self) -> str:
         return f"{self.get_full_name}\n{self.phone_number}\n{self.address}"
+
+    @property
+    def _mapping(self) -> Mapping:
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "phone_number": self.phone_number,
+            "address": self.address.replace('n', '')
+        }
 
     @property
     def get_full_name(self):
@@ -39,8 +50,9 @@ class User:
         return f"{self.first_name} {self.last_name.upper()}"
 
     @property
-    def db_instance(self) -> table.Document | None:
-        return User.DB.get((where('first_name') == self.first_name) and (where('last_name') == self.last_name))
+    def db_instance(self) -> table.Document:
+        # self.db.get_
+        return self.db.get((where('first_name') == self.first_name) and (where('last_name') == self.last_name))
 
     def _check_user(self):
         self._check_names()
@@ -52,7 +64,9 @@ class User:
         """
         phone_digit = re.sub(r"[+()\s]*", "", self.phone_number)
         if len(phone_digit) < 10 or not phone_digit.isdigit():
-            raise ValueError(f"Le numéro de téléphone {self.phone_number} est invalide.")
+            msg = f"Invalid phone number : {self.phone_number}"
+            self.logger.error(f"{msg} - {self.__repr__()}")
+            raise PhoneValueError(message=msg)
 
     def _check_names(self):
         """
@@ -60,17 +74,17 @@ class User:
         punctuation character, then raise a ValueError
         """
         if not (self.first_name and self.last_name):
-            raise ValueError("Le prénom et le nom de famille ne peuvent être vide.")
+            raise NameValueError(f"Invalid value : {self.first_name} {self.last_name}")
 
         special_chars = string.digits + string.punctuation
         for c in self.first_name + self.last_name:
             if c in special_chars:
-                raise ValueError(f"Nom invalide {self.get_full_name}")
+                raise ValueError(f"Name invalid : {self.get_full_name}")
 
     def save(self, validate_data: bool = False) -> int:
         """
         If the user exists, return -1, otherwise insert the user into the database
-        
+
         :param validate_data: If True, the user will be checked for validity before being saved,
         defaults to False
         :type validate_data: bool (optional)
@@ -79,7 +93,7 @@ class User:
         if validate_data:
             self._check_user()
 
-        return -1 if self.exists() else User.DB.insert(self.__dict__)
+        return -1 if self.exists() else self.db.insert(self._mapping)
 
     def exists(self) -> bool:
         """
@@ -94,7 +108,7 @@ class User:
         :return: The user id.
         """
         if self.exists():
-            return User.DB.remove(doc_ids=[self.db_instance.doc_id])
+            return self.db.remove(doc_ids=[self.db_instance.doc_id])
         return []
 
 
@@ -103,7 +117,7 @@ def get_all_users() -> list[User]:
     "Return a list of User objects, where each User object is created from the data in the database."
     :return: A list of User objects
     """
-    return [User(**user) for user in User.DB.all()]
+    return [User(**user) for user in Core().db.all()]
 
 
 def generate_fake_users(number: int = 1, save_user: bool = False) -> list[User]:
@@ -118,12 +132,12 @@ def generate_fake_users(number: int = 1, save_user: bool = False) -> list[User]:
     """
     fake = faker.Faker(locale="fr_FR")
     users = []
-    for _ in range(10):
+    for _ in range(number):
         user = User(
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             phone_number=fake.phone_number(),
-            address=fake.address())
+            address=fake.address().replace("\n", " "))
         if save_user:
             user.save(validate_data=True)
 
@@ -139,8 +153,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print(Settings.PROJECT_PATH)
-    print(Settings.PROJECT_DIR)
-    print(Settings.DB_PATH)
-    print(Settings.LOG_PATH)
-    # main()
+    main()
