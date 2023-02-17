@@ -8,14 +8,14 @@ import string
 
 from tinydb import table, where
 
-from core import Core, PhoneValueError, NameValueError
-from settings import Settings
+from src.user import Core, PhoneValueError, NameValueError
+from src.settings import Settings
 
 
 class User(Core):
 
     def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "", db_path: Path = Settings.DB_PATH) -> None:
-        super().__init__(db_path=db_path)
+        super().__init__()
 
         self.first_name = first_name
         self.last_name = last_name

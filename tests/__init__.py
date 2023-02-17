@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from settings import Settings
+from src.settings import Settings
 
 
 class TestSettings:

@@ -1,8 +1,8 @@
 import logging
 from pathlib import Path
 
-from db.database import Database
-from settings import Settings
+from src.db.database import UserDatabase
+from src.settings import Settings
 
 
 class Core:
@@ -11,11 +11,12 @@ class Core:
                         format='%(asctime)s::%(levelname)s::%(message)s',
                         datefmt='%Y-%m-%d::%H:%M:%S')
 
-    def __init__(self, db_path: Path = Settings.DB_PATH):
-        self._database = Database(db_path=db_path)
+    def __init__(self):
+        self._database = UserDatabase()
 
     @property
     def db(self):
+        print(id(self._database.db))
         return self._database.db
 
     @property

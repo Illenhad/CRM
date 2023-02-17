@@ -4,9 +4,9 @@ import string
 from tinydb import table
 from unittest import TestCase
 
-from core import Core
+from src import Core
 from tests import TestSettings
-from user import User
+from src.user.user import User
 
 
 class TestException(Exception):
