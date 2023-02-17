@@ -1,5 +1,15 @@
-env/
+# IDE settings
 .idea
-*.log
-db.json
+.vscode
+
+# Virtualenv folder
+env/
+
+# Logs files
+logs/*.log
+
+# Database created for the tests
 tests/test_db.json
+
+# Databases json files
+src/db/*.json
