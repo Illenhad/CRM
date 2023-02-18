@@ -8,8 +8,10 @@ env/
 # Logs files
 logs/*.log
 
-# Database created for the tests
-tests/test_db.json
+# Tests files
+.coverage
+htmlcov/
+tests/.pytest_cache
 
 # Databases json files
 src/db/*.json
