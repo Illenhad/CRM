@@ -12,6 +12,7 @@ logs/*.log
 .coverage
 htmlcov/
 tests/.pytest_cache
+/tests/test_db.json
 
 # Databases json files
 src/db/*.json
