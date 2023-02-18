@@ -16,6 +16,6 @@ class Settings:
     USER_DB_DIR: str = 'db'
     USER_DB_PATH: Path = Path(SRC_PATH / USER_DB_DIR / USER_DB_FILE_NAME)
 
-    LOG_FILE_NAME: str = 'user.log'
+    LOG_FILE_NAME: str = 'users.log'
     LOG_DIR: str = 'logs'
     LOG_PATH: Path = Path(PROJECT_PATH / LOG_DIR / LOG_FILE_NAME)

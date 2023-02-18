@@ -4,9 +4,9 @@ import string
 from tinydb import table
 from unittest import TestCase
 
-from src import Core
+from src.users import Core
+from src.users.user import User
 from tests import TestSettings
-from src.user.user import User
 
 
 class TestException(Exception):
@@ -19,10 +19,10 @@ class TestException(Exception):
 class TestUser(TestCase):
 
     def _init_user(self):
+
         # Delete all data
         core = Core(db_path=TestSettings.TEST_DB_PATH)
         core.db.drop_tables()
-        core.db.close()
 
         self.user = User(
             first_name="Pierre",
@@ -45,14 +45,17 @@ class TestUser(TestCase):
 
         self.assertEqual(self.user.get_full_name, "Pierre LEGRAND")
 
-    def test_db_instance(self):
+    def test_db_instance_is_none_if_user_is_not_save(self):
+        self._init_user()
+        self.assertEqual(self.user.db_instance, None)
+
+    def test_db_instance_if_user_is_save(self):
         self._init_user()
 
-        self.assertEqual(self.user.db_instance, None)
         self.user.save()
         self.assertIsInstance(self.user.db_instance, table.Document)
 
-    def test__check_user(self):
+    def test__check_a_valid_user(self):
         self._init_user()
 
         raised = False

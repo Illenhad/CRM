@@ -1,6 +1,7 @@
 """Module to generate random users"""
 from collections.abc import Mapping
 from pathlib import Path
+from typing import Optional
 
 import faker
 import re
@@ -8,14 +9,19 @@ import string
 
 from tinydb import table, where
 
-from src.user import Core, PhoneValueError, NameValueError
 from src.settings import Settings
+from src.users import Core, PhoneValueError, NameValueError
 
 
 class User(Core):
 
-    def __init__(self, first_name: str, last_name: str, phone_number: str = "", address: str = "", db_path: Path = Settings.DB_PATH) -> None:
-        super().__init__()
+    def __init__(self,
+                 first_name: str,
+                 last_name: str,
+                 phone_number: str = "",
+                 address: str = "",
+                 db_path: Path = Settings.DB_PATH) -> None:
+        super().__init__(db_path=db_path)
 
         self.first_name = first_name
         self.last_name = last_name
@@ -45,7 +51,7 @@ class User(Core):
         """
         The function takes in a person object, and returns a string of the person's first name and last
         name in upper case
-        :return: The first name and last name of the user.
+        :return: The first name and last name of the users.
         """
         return f"{self.first_name} {self.last_name.upper()}"
 
@@ -83,12 +89,12 @@ class User(Core):
 
     def save(self, validate_data: bool = False) -> int:
         """
-        If the user exists, return -1, otherwise insert the user into the database
+        If the users exists, return -1, otherwise insert the users into the database
 
-        :param validate_data: If True, the user will be checked for validity before being saved,
+        :param validate_data: If True, the users will be checked for validity before being saved,
         defaults to False
         :type validate_data: bool (optional)
-        :return: The id of the user.
+        :return: The id of the users.
         """
         if validate_data:
             self._check_user()
@@ -104,8 +110,8 @@ class User(Core):
 
     def delete(self) -> list[int]:
         """
-        It deletes the user from the database if the user exists
-        :return: The user id.
+        It deletes the users from the database if the users exists
+        :return: The users id.
         """
         if self.exists():
             return self.db.remove(doc_ids=[self.db_instance.doc_id])
@@ -126,7 +132,7 @@ def generate_fake_users(number: int = 1, save_user: bool = False) -> list[User]:
     
     :param number: The number of users to generate, defaults to 1
     :type number: int (optional)
-    :param save_user: if True, the user will be saved in the database, defaults to False
+    :param save_user: if True, the users will be saved in the database, defaults to False
     :type save_user: bool (optional)
     :return: A list of User objects
     """

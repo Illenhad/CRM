@@ -11,12 +11,11 @@ class Core:
                         format='%(asctime)s::%(levelname)s::%(message)s',
                         datefmt='%Y-%m-%d::%H:%M:%S')
 
-    def __init__(self):
-        self._database = UserDatabase()
+    def __init__(self, db_path: Path = Settings.USER_DB_PATH):
+        self._database = UserDatabase(db_path)
 
     @property
     def db(self):
-        print(id(self._database.db))
         return self._database.db
 
     @property
